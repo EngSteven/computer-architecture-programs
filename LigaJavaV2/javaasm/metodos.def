@@ -1,0 +1,5 @@
+LIBRARY metodos
+EXPORTS
+Java_ConversorAJuliano_calcularJuliano
+Java_ConversorAJuliano_calcularDecimalesJulianos
+Java_DesplegarCalendario_calcularPrimerDiaMes

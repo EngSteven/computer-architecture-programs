@@ -1,0 +1,211 @@
+CalcularDoomdayAnio macro mes,anio 
+    local diaEsMartes, diaEsDomingo, diaEsViernes, diaEsMiercoles, calcularDoomdayAnio
+    ;CALCULAR EL DOOMDAY DEL SIGLO->resultado en cx 
+    ;los dias estan a escala de 0 a 6
+    
+
+    xor ax,ax 
+    xor bx,bx 
+    xor cx,cx   ;guardar el resultado
+    xor dx,dx 
+
+    mov ax,anio 
+    mov bx,100
+    div bx 
+    
+    xor bx,bx 
+    mov bl,4
+    div bl       
+
+    cmp ah,0
+    je diaEsMartes 
+
+    cmp ah,1
+    je diaEsDomingo
+    
+    cmp ah,2
+    je diaEsViernes
+    
+    cmp ah,3
+    je diaEsMiercoles
+    
+diaEsMartes: 
+    mov cx,2
+    jmp calcularDoomdayAnio 
+
+diaEsDomingo:
+    mov cx,0
+    jmp calcularDoomdayAnio
+
+diaEsViernes:
+    mov cx,5
+    jmp calcularDoomdayAnio
+
+diaEsMiercoles:
+    mov cx,3
+    jmp calcularDoomdayAnio
+    
+calcularDoomdayAnio:
+
+    ;CALCULAR DOOMDAY DEL ANIO->resultado en ah
+    xor ax,ax 
+    xor bx,bx 
+    
+    mov ax,dx
+    mov bl,12 
+    div bl
+
+    xor dx,dx 
+    mov bh,al   
+    mov dl,ah    
+    mov bl,4
+    xor ax,ax 
+    mov al,dl   
+    div bl 
+
+    add bh,dl 
+    add al,bh 
+
+    mov ah,0
+    mov bl,7
+    div bl
+
+    add ah,cl
+EndM 
+
+CalcularDoomdayMes macro mes,anio 
+    local esMes1,esMes2,esMes3,esMes4,esMes5,esMes6,esMes7,esMes8,esMes9,esMes10,esMes11,esMes12,esMes1Bisiesto,esMes2Bisiesto,mes1NoEsBisiesto,mes2NoEsBisiesto,salirDM
+
+    ;CALCULAR EL DOOMDAY DEL MES
+    EsAnioBisiesto anio
+    xor si,si  
+
+;-------------------------------------------------
+esMes1:
+    cmp mes,1
+    je esMes1Bisiesto
+    jmp esMes2
+
+esMes1Bisiesto:
+    cmp di,1
+    jne mes1NoEsBisiesto
+    mov si,4
+    jmp salirDM   
+
+mes1NoEsBisiesto:
+    mov si,3
+    jmp salirDM
+;--------------------------------------------------
+
+esMes2:
+    cmp mes,2
+    je esMes2Bisiesto
+    jmp esMes3
+
+esMes2Bisiesto:
+    cmp di,1
+    jne mes2NoEsBisiesto
+    mov si,1
+    jmp salirDM   
+
+mes2NoEsBisiesto:
+    mov si,7
+    jmp salirDM
+;--------------------------------------------------
+
+esMes3:
+    cmp mes,3
+    jne esMes4
+    mov si,14
+    jmp salirDM 
+;--------------------------------------------------
+
+esMes4:
+    cmp mes,4
+    jne esMes5
+    mov si,4
+    jmp salirDM 
+;--------------------------------------------------
+
+esMes5:
+    cmp mes,5
+    jne esMes6
+    mov si,9
+    jmp salirDM 
+;--------------------------------------------------
+
+esMes6:
+    cmp mes,6
+    jne esMes7
+    mov si,6
+    jmp salirDM 
+;--------------------------------------------------
+
+esMes7:
+    cmp mes,7
+    jne esMes8
+    mov si,11
+    jmp salirDM 
+;--------------------------------------------------
+
+esMes8:
+    cmp mes,8
+    jne esMes9
+    mov si,8
+    jmp salirDM 
+;--------------------------------------------------
+
+esMes9:
+    cmp mes,9
+    jne esMes10
+    mov si,5
+    jmp salirDM 
+;--------------------------------------------------
+
+esMes10:
+    cmp mes,10
+    jne esMes11
+    mov si,10
+    jmp salirDM 
+;--------------------------------------------------
+
+esMes11:
+    cmp mes,11
+    jne esMes12
+    mov si,7
+    jmp salirDM 
+;--------------------------------------------------
+
+esMes12:
+    cmp mes,12
+    jne salirDM
+    mov si,12
+    jmp salirDM 
+;--------------------------------------------------
+
+salirDM:
+
+EndM 
+
+CalcularPrimerDia macro mes,anio
+    local whilePDM, breakPDM,noAjustarDoomday
+    CalcularDoomdayAnio mes, anio 
+    CalcularDoomdayMes mes, anio 
+
+    whilePDM:
+        cmp si,1
+        jbe breakPDM 
+
+        dec ah 
+
+        cmp ah,6
+        jbe noAjustarDoomday
+        mov ah,6
+        
+        noAjustarDoomday:
+        
+        dec si 
+        jmp whilePDM
+
+    breakPDM:
+EndM

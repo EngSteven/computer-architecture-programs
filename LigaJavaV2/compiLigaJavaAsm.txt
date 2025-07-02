@@ -1,0 +1,6 @@
+cd/javaasm
+javah MenuPrincipal 
+javac MenuPrincipal.java
+ml /c /coff /Cp metodos.asm
+link /DLL /NOENTRY /subsystem:windows /DEF:metodos.def metodos.obj
+java MenuPrincipal

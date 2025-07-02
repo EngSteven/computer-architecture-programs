@@ -1,0 +1,3 @@
+LIBRARY calcularJuliano
+EXPORTS
+Java_Calcular_Juliano

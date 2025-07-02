@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1681170782 source:c:\users\yei-1\dropbox\pc\desktop\college\semestre 3\arqui\examen1\doomsdayc++\main.cpp
+	<iostream>
+	<string>
+	<windows.h>
+	<stdlib.h>
+	<conio.h>
+	<cmath>
+

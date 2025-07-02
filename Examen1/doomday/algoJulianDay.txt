@@ -1,0 +1,351 @@
+;PROCESO PARA OBTENER EL JULIAN DAY 
+
+    ;sacar el M->di y el Y->si 
+    mov di,mes
+    mov si,anio 
+
+    ;Si el mes es 1 o 2, se incrementa el mes en 12 y el anio se decrementa en 1  
+    cmp di,2
+    ja mesNoEs1o2
+    add di,12
+    dec si 
+    ;SI EL ANIO ES AC SE LE SUMA 1 AL ANIO
+
+mesNoEs1o2:  
+
+    ;sacar el A->cx 
+    mov ax,si 
+    mov bx,100
+    div bx 
+    mov cx,ax 
+
+    ;sacar el B->dl
+    cmp anio,1582
+    je es1582
+    ja noPonerBEn0
+
+    mov dl,0
+    jmp calculoFinal
+
+es1582:
+    cmp mes,11
+    ja noPonerBEn0
+    mov dl,0
+    jmp calculoFinal
+
+noPonerBEn0:
+
+    xor bx,bx 
+    mov bl,2
+    sub bl,al 
+
+    cmp bl,77
+    jbe noNegativo 
+    
+    ;ajuste para obtener el valor correcto al ser negativo
+    mov al,255
+    sub al,bl 
+    inc al
+    mov ah,1 ;quedo negativo   
+
+noNegativo: 
+    mov dx,ax 
+    mov ax,cx
+    mov bl,4 
+    div bl 
+
+    cmp dh,1    ;ver si es negativo 
+    je restar
+    jne sumar 
+
+restar: 
+    sub dl,al
+    jmp calculoFinal
+sumar: 
+    add dl,al 
+    mov dh,0
+
+calculoFinal:
+
+    ;HACER EL CALCULO FINAL DEL JULIAN DAY 
+    
+    xor ax,ax
+    xor bx,bx
+    xor cx,cx
+    ;xor dx,dx
+    ;xor si,si
+
+    ;Primer operacion
+    push dx 
+    push di 
+    mov num1,si 
+    mov num2,4716 
+    sumarDosNumeros num1,num2
+
+    mov ax,di 
+    xor dx,dx 
+    mov bx,4 
+    div bx
+    mov cx,ax   ;cuarta parte de la suma
+
+    mov ax,di 
+    xor dx,dx 
+    mov bx,365
+    mul bx
+
+    mov bx,dx 
+
+    mov bx,10000
+    div bx 
+
+    mov num1,cx 
+    mov num2,dx
+    push ax
+    sumarDosNumeros num1,num2
+    pop ax
+    mov dx,di  
+    
+    ;segunda operacion
+    pop di 
+    push ax
+    push dx
+
+    xor ax,ax
+    xor dx,dx
+    inc di 
+
+    mov ax,di 
+    mov bl,3
+    mul bl
+
+    mov bx,5
+    div bx  
+
+    mov num1,ax 
+
+    mov ax,di
+    xor dx,dx  
+    mov bx,30
+    mul bx 
+
+    mov num2,ax 
+
+    sumarDosNumeros num1,num2 
+
+    pop dx
+    pop ax 
+
+    mov num1,dx 
+    mov num2,di 
+    push ax
+    push dx 
+    sumarDosNumeros num1,num2
+    pop dx 
+    pop ax
+
+    mov dx,di 
+
+    inc dx
+    mov cx,dx  
+    ;HAY QUE COMPROBAR SI EL B ES NEGATIVO O POSITIVO
+    
+    pop dx 
+    xor bx,bx 
+    mov bl,dl       ;B
+
+    cmp dh,1        ;ver si es negativo
+    je restar2
+    jne sumar2
+
+restar2:
+    sub cx,bx        ;dx 
+    jmp calculoFinal2
+
+sumar2: 
+    push ax 
+    mov num1,cx
+    mov num2,bx 
+
+    sumarDosNumeros num1,num2 
+
+    pop ax 
+    mov cx,di 
+
+calculoFinal2:
+
+    sub cx,1524  
+    mov dx,cx
+    inc dx
+
+    cmp dx,10000
+    jb noCarry
+    inc ax
+    push ax
+    mov ax,dx 
+    xor dx,dx 
+    mov bx,10000
+    div bx 
+    pop ax 
+
+
+noCarry:
+
+    ;acomodar el formato para pasarlo a binario
+    push dx 
+    mov bx,100
+    xor dx,dx 
+    mul bx 
+
+    pop dx 
+    push ax  
+    mov ax,dx 
+    xor dx,dx 
+    div bx 
+
+    mov num2,ax 
+    pop ax 
+    mov num1,ax
+    push dx 
+    sumarDosNumeros num1,num2
+    pop dx 
+    mov ax,di
+
+    ;PROCESO PARA CONVERTIR UN NUMERO DE 7 DIGITOS A BINARIO
+
+    xor bx,bx
+    xor cx,cx
+    xor si,si
+
+    mov si,23
+
+
+    whileCB1:
+        push dx
+        push ax
+
+        ;obtener el resto
+        xor ax,ax 
+        mov ax,dx 
+        xor dx,dx 
+        mov bx,2
+        div bx
+        ;add dl,30h
+        mov [julianDayBinario + si], dl     ;se guarda el resto
+        pop ax 
+        pop dx
+        
+        push dx
+        push ax  
+        xor dx,dx 
+        mov bx,2
+        div bx
+
+        mov cx,ax           ;6172  
+        pop ax              ;12345
+        mov bx,10 
+        xor dx,dx           
+        div bx              ;12345 / 10
+
+        xor ax,ax           
+        mov ax,dx           ;ax = 5
+        mov bx,100      
+        mul bx              ;5 * 100
+        pop dx
+        mov num1,ax 
+        mov num2,dx
+        push si 
+        push cx  
+        sumarDosNumeros num1,num2   ;500 + 67 
+        
+        xor ax,ax
+        xor dx,dx 
+        mov ax,di 
+        mov bx,2
+        div bx 
+
+        mov bx,100
+        xor dx,dx 
+        div bx 
+
+        pop cx 
+        mov ax,cx
+        xor cx,cx 
+        pop si 
+        mov cl,[julianDayBinario + si] 
+        ImprimirCaracter cl
+        dec si 
+
+        cmp ax,65
+        jbe breakCB1  
+        jmp whileCB1
+    breakCB1:
+
+    push dx 
+    xor dx,dx 
+    mov bx,100
+    mul bx  
+    
+    pop dx 
+    mov num1,ax
+    mov num2,dx 
+
+    push si
+    sumarDosNumeros num1,num2  
+    pop si 
+    mov ax,di 
+
+    whileCB2:
+        mov bx,2
+        xor dx,dx 
+        div bx 
+
+        ;add dl,30h
+        mov [julianDayBinario + si],dl
+        mov cl,[julianDayBinario + si] 
+        ImprimirCaracter cl
+        dec si 
+
+        cmp ax,0
+        je breakCB2
+        jmp whileCB2
+    breakCB2:
+
+    xor ax,ax
+    xor bx,bx
+    xor cx,cx
+    xor dx,dx
+    xor si,si
+
+    mov ax,0000000000000000b
+    mov dx,00000000b
+
+    mov si,0
+    whilePB:  
+        
+        mov bl, [julianDayBinario + si]     ; Carga el bit actual en el registro dx
+        
+        cmp si,8
+        jae parteBaja
+        ;hacer parte alta
+        shl dx,1
+        or dx,bx 
+        jmp comprobarSalidaPB
+
+    parteBaja:
+        shl ax,1        ; Desplaza el registro ax un bit a la izquierda
+        or ax,bx        ; Combina el bit actual con el registro ax mediante una operación OR    
+
+    comprobarSalidaPB:
+        inc si
+        cmp si,24
+        je breakPB 
+        jmp whilePB  
+    breakPB:
+
+    mov bx,7777
+    div bx 
+
+    mov bx,7
+    mov ax,dx
+    xor dx,dx  
+    div bx
